@@ -1,5 +1,6 @@
 const js = require("@eslint/js");
 const globals = require("globals");
+const eslintConfigPrettier = require("eslint-config-prettier/flat");
 
 module.exports = [
     js.configs.recommended,
@@ -14,4 +15,5 @@ module.exports = [
             },
         },
     },
+    eslintConfigPrettier,
 ];

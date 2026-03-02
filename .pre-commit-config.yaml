@@ -26,4 +26,5 @@ repos:
     additional_dependencies:
     - eslint@9.39.1
     - '@eslint/js@9.39.1'
+    - eslint-config-prettier@10.1.8
     - globals@15.15.0
