@@ -523,13 +523,12 @@
       "click",
       (event) => {
         if (
-          !shouldConfirmDelete(event.target) ||
-          window.confirm(DELETE_CONFIRM_MESSAGE)
+          shouldConfirmDelete(event.target) &&
+          !window.confirm(DELETE_CONFIRM_MESSAGE)
         ) {
-          return;
+          event.preventDefault();
+          event.stopImmediatePropagation();
         }
-        event.preventDefault();
-        event.stopImmediatePropagation();
       },
       true,
     );
