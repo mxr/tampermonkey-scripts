@@ -15,7 +15,7 @@
 
   const HEADER_DAYS_TEXT = "Days Left";
   const MS_PER_DAY = 24 * 60 * 60 * 1000;
-  const MOBILE_DELETE_CONFIRM_MESSAGE =
+  const DELETE_CONFIRM_MESSAGE =
     "Delete this package? This action cannot be undone.";
 
   function normalize(text) {
@@ -507,80 +507,46 @@
 
   let scheduled = false;
 
-  function getDeleteControlFromTarget(target) {
+  function shouldConfirmDelete(target) {
     if (!(target instanceof Element)) {
-      return null;
+      return false;
     }
 
     const control = target.closest(
-      "button, a, [role='button'], [onclick], input[type='button'], input[type='submit']",
+      "a, button, input[type='button'], input[type='submit']",
     );
-    if (!control) {
-      return null;
-    }
-    if (!control.closest("#table")) {
-      return null;
+    if (!control || !control.closest("#table")) {
+      return false;
     }
 
-    const controlText = normalize(control.textContent);
-    const targetText = normalize(target.textContent);
-    const metadata = normalize(
+    const label = normalize(
       [
-        control.getAttribute("aria-label"),
+        control.textContent,
+        control.getAttribute("value"),
         control.getAttribute("title"),
-        control.getAttribute("data-testid"),
-        control.getAttribute("name"),
+        control.getAttribute("aria-label"),
         control.getAttribute("onclick"),
-        control.id,
-        control.className,
-        target.getAttribute("aria-label"),
-        target.getAttribute("title"),
-        target.className,
       ]
         .filter(Boolean)
         .join(" "),
     );
-    const combined = `${controlText} ${targetText} ${metadata}`;
-
-    if (/\b(delete|remove|trash|discard)\b/i.test(combined)) {
-      return control;
-    }
-
-    const looksLikeCloseX = /(?:^|\s)x(?:\s|$)/i.test(
-      controlText || targetText,
+    return (
+      /\bdelete\b/.test(label) || /\bdelete\(/.test(label) || label === "x"
     );
-    const deleteLikeClass = /\b(delete|remove|trash|close|cross|times)\b/i.test(
-      metadata,
-    );
-    if (looksLikeCloseX && deleteLikeClass) {
-      return control;
-    }
-
-    if (
-      control.querySelector(
-        'img[alt*="delete" i], [aria-label*="delete" i], [title*="delete" i]',
-      )
-    ) {
-      return control;
-    }
-
-    return null;
   }
 
   function installDeleteConfirmation() {
     document.addEventListener(
       "click",
       (event) => {
-        const control = getDeleteControlFromTarget(event.target);
-        if (!control) {
+        if (!shouldConfirmDelete(event.target)) {
           return;
         }
-        const confirmed = window.confirm(MOBILE_DELETE_CONFIRM_MESSAGE);
+        const confirmed = window.confirm(DELETE_CONFIRM_MESSAGE);
         if (confirmed) {
           return;
         }
         event.preventDefault();
-        event.stopPropagation();
         event.stopImmediatePropagation();
       },
       true,
