@@ -5,6 +5,11 @@ module.exports = [
       ecmaVersion: "latest",
       sourceType: "script",
     },
-    rules: {},
+    rules: {
+      indent: ["error", 4],
+      quotes: ["error", "double", { avoidEscape: true }],
+      semi: ["error", "always"],
+      "comma-dangle": ["error", "always-multiline"],
+    },
   },
 ];
