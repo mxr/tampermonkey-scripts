@@ -15,8 +15,8 @@
 
   const HEADER_DAYS_TEXT = "Days Left";
   const MS_PER_DAY = 24 * 60 * 60 * 1000;
-  const DELETE_CONFIRM_MESSAGE =
-    "Delete this package? This action cannot be undone.";
+  // prettier-ignore
+  const DELETE_CONFIRM_MESSAGE = "Delete this package? This action cannot be undone.";
 
   function normalize(text) {
     return (text || "").replace(/\s+/g, " ").trim().toLowerCase();
