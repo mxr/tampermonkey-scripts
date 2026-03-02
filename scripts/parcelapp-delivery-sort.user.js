@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ParcelApp: Days Until Delivery + Smart Sort
 // @namespace    https://github.com/mxr/tampermonkey-scripts
-// @version      0.1.3
+// @version      0.1.4
 // @description  Adds a days-until-delivery column and sorts packages by delivery readiness.
 // @author       mxr
 // @match        https://web.parcelapp.net/*
@@ -12,7 +12,7 @@
 (function () {
   "use strict";
 
-  const HEADER_DAYS_TEXT = "Days Until Delivery";
+  const HEADER_DAYS_TEXT = "Days Left";
   const MS_PER_DAY = 24 * 60 * 60 * 1000;
 
   function normalize(text) {
@@ -220,10 +220,6 @@
   }
 
   function calculateDaysUntil(date) {
-    if (!date) {
-      return "";
-    }
-
     const now = new Date();
     const todayStart = new Date(
       now.getFullYear(),
@@ -238,7 +234,21 @@
     const diff = Math.round(
       (targetStart.getTime() - todayStart.getTime()) / MS_PER_DAY,
     );
-    return String(diff);
+    return diff;
+  }
+
+  function getDaysCellValue(delivered, date) {
+    if (delivered) {
+      return "✅";
+    }
+    if (!date) {
+      return "";
+    }
+    const days = calculateDaysUntil(date);
+    if (days <= 0) {
+      return "🚛";
+    }
+    return String(days);
   }
 
   function getExpectedDateRow(body) {
@@ -284,28 +294,29 @@
   }
 
   function ensureDaysColumn(table, headers, deliveryIndex, headerRow) {
-    const existingIndex = headers.findIndex(
-      (cell) => normalize(cell.textContent) === normalize(HEADER_DAYS_TEXT),
+    const insertAt = 0;
+    const headerTag = headers[0]?.tagName?.toLowerCase() === "td" ? "td" : "th";
+    let headerCell = headerRow.querySelector(
+      "th[data-tm-days-until], td[data-tm-days-until]",
     );
-    const insertAt =
-      existingIndex >= 0
-        ? existingIndex
-        : deliveryIndex >= 0
-          ? deliveryIndex + 1
-          : headers.length;
-
-    if (existingIndex < 0) {
-      const headerTag =
-        headers[0]?.tagName?.toLowerCase() === "td" ? "td" : "th";
-      const headerCell = document.createElement(headerTag);
-      headerCell.textContent = HEADER_DAYS_TEXT;
-      headerCell.dataset.tmDaysUntil = "true";
-      if (insertAt >= headers.length) {
-        headerRow.appendChild(headerCell);
-      } else {
-        headerRow.insertBefore(headerCell, headers[insertAt]);
+    if (!headerCell) {
+      const fromText = Array.from(headerRow.cells).find(
+        (cell) => normalize(cell.textContent) === normalize(HEADER_DAYS_TEXT),
+      );
+      if (fromText) {
+        headerCell = fromText;
       }
     }
+    if (!headerCell) {
+      headerCell = document.createElement(headerTag);
+      headerCell.dataset.tmDaysUntil = "true";
+    }
+    headerCell.textContent = HEADER_DAYS_TEXT;
+    headerCell.dataset.tmDaysUntil = "true";
+    if (headerCell.parentElement === headerRow) {
+      headerRow.removeChild(headerCell);
+    }
+    headerRow.insertBefore(headerCell, headerRow.cells[insertAt] || null);
 
     for (const body of table.tBodies) {
       const expectedRow = getExpectedDateRow(body);
@@ -342,8 +353,7 @@
       if (daysCell.parentElement === primaryRow) {
         primaryRow.removeChild(daysCell);
       }
-      const insertBeforeCell = primaryRow.cells[insertAt] || null;
-      primaryRow.insertBefore(daysCell, insertBeforeCell);
+      primaryRow.insertBefore(daysCell, primaryRow.cells[insertAt] || null);
     }
 
     return insertAt;
@@ -372,9 +382,10 @@
         statusIndex,
       );
       const delivered = isDeliveredRow(primaryRow, statusIndex);
-      primaryRow.cells[daysIndex].textContent = delivered
-        ? ""
-        : calculateDaysUntil(deliveryDate);
+      primaryRow.cells[daysIndex].textContent = getDaysCellValue(
+        delivered,
+        deliveryDate,
+      );
     }
   }
 
