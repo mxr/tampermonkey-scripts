@@ -4,14 +4,17 @@ repos:
   hooks:
   - id: end-of-file-fixer
   - id: trailing-whitespace
-  - id: sync-pre-commit-dependencies
+- repo: https://github.com/pre-commit/sync-pre-commit-deps
+  rev: v0.0.3
+  hooks:
+  - id: sync-pre-commit-deps
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
   rev: v2.16.0
   hooks:
   - id: pretty-format-yaml
     args: [--autofix]
 - repo: https://github.com/pre-commit/mirrors-eslint
-  rev: v9.39.1
+  rev: v10.0.2
   hooks:
   - id: eslint
     args: [--fix]
