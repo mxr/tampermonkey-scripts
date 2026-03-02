@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Parcel: Days Until Delivery + Smart Sort
 // @namespace    https://github.com/mxr/tampermonkey-scripts
-// @version      1.0.0
+// @version      1.0.1
 // @description  Adds a days-until-delivery column and sorts packages by delivery readiness.
 // @author       mxr
 // @match        https://web.parcelapp.net/*
@@ -246,7 +246,10 @@
       return "🚛";
     }
     const days = calculateDaysUntil(date);
-    if (days <= 0) {
+    if (days === 0) {
+      return "0";
+    }
+    if (days < 0) {
       return "🚛";
     }
     return String(days);
