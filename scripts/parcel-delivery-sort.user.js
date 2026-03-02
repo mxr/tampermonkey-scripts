@@ -522,11 +522,10 @@
     document.addEventListener(
       "click",
       (event) => {
-        if (!shouldConfirmDelete(event.target)) {
-          return;
-        }
-        const confirmed = window.confirm(DELETE_CONFIRM_MESSAGE);
-        if (confirmed) {
+        if (
+          !shouldConfirmDelete(event.target) ||
+          window.confirm(DELETE_CONFIRM_MESSAGE)
+        ) {
           return;
         }
         event.preventDefault();
