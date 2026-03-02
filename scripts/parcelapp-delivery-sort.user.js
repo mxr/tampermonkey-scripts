@@ -95,6 +95,40 @@
     return -1;
   }
 
+  function looksLikeHeaderText(text) {
+    return (
+      text.includes("name") ||
+      text.includes("number") ||
+      text.includes("delivery company") ||
+      text.includes("status") ||
+      text.includes("edit") ||
+      text.includes("delete")
+    );
+  }
+
+  function getHeaderRow(table) {
+    const explicitHeader =
+      table.tHead?.rows?.[0] || table.querySelector("thead tr");
+    if (explicitHeader && explicitHeader.cells.length >= 2) {
+      return explicitHeader;
+    }
+
+    const allRows = Array.from(table.querySelectorAll("tr"));
+    for (const row of allRows) {
+      if (row.cells.length < 2) {
+        continue;
+      }
+      const texts = Array.from(row.cells).map((cell) =>
+        normalize(cell.textContent),
+      );
+      if (texts.some((text) => looksLikeHeaderText(text))) {
+        return row;
+      }
+    }
+
+    return null;
+  }
+
   function isDeliveredRow(row, statusIndex) {
     const statusText =
       statusIndex >= 0 ? normalize(row.cells[statusIndex]?.textContent) : "";
@@ -178,7 +212,7 @@
     return onlyCell.colSpan >= Math.max(2, expectedColumnCount - 1);
   }
 
-  function ensureDaysColumn(table, headers, deliveryIndex) {
+  function ensureDaysColumn(table, headers, deliveryIndex, headerRow) {
     const existingIndex = headers.findIndex(
       (th) => normalize(th.textContent) === normalize(HEADER_DAYS_TEXT),
     );
@@ -186,6 +220,9 @@
       const targetColspan = headers.length;
       for (const body of table.tBodies) {
         for (const row of body.rows) {
+          if (row === headerRow) {
+            continue;
+          }
           if (isDetailRow(row, headers.length)) {
             if (row.cells[0].colSpan < targetColspan) {
               row.cells[0].colSpan = targetColspan;
@@ -207,12 +244,11 @@
       return existingIndex;
     }
 
-    const headerCell = document.createElement("th");
+    const insertAt = deliveryIndex >= 0 ? deliveryIndex + 1 : headers.length;
+    const headerTag = headers[0]?.tagName?.toLowerCase() === "td" ? "td" : "th";
+    const headerCell = document.createElement(headerTag);
     headerCell.textContent = HEADER_DAYS_TEXT;
     headerCell.dataset.tmDaysUntil = "true";
-
-    const insertAt = deliveryIndex >= 0 ? deliveryIndex + 1 : headers.length;
-    const headerRow = headers[0].parentElement;
     if (insertAt >= headers.length) {
       headerRow.appendChild(headerCell);
     } else {
@@ -221,6 +257,9 @@
 
     for (const body of table.tBodies) {
       for (const row of body.rows) {
+        if (row === headerRow) {
+          continue;
+        }
         if (isDetailRow(row, headers.length)) {
           row.cells[0].colSpan = Math.max(
             row.cells[0].colSpan,
@@ -247,9 +286,13 @@
     daysIndex,
     statusIndex,
     expectedColumnCount,
+    headerRow,
   ) {
     for (const body of table.tBodies) {
       for (const row of body.rows) {
+        if (row === headerRow) {
+          continue;
+        }
         if (isDetailRow(row, expectedColumnCount) || !row.cells[daysIndex]) {
           continue;
         }
@@ -268,13 +311,18 @@
     nameIndex,
     statusIndex,
     expectedColumnCount,
+    headerRow,
   ) {
     for (const body of table.tBodies) {
       const allRows = Array.from(body.rows);
+      const pinnedRows = allRows.filter((row) => row === headerRow);
       const blocks = [];
 
       for (let i = 0; i < allRows.length; i += 1) {
         const row = allRows[i];
+        if (row === headerRow) {
+          continue;
+        }
         if (isDetailRow(row, expectedColumnCount)) {
           if (blocks.length) {
             blocks[blocks.length - 1].rows.push(row);
@@ -332,6 +380,9 @@
         );
       });
 
+      for (const row of pinnedRows) {
+        body.appendChild(row);
+      }
       for (const block of blocks) {
         for (const row of block.rows) {
           body.appendChild(row);
@@ -341,7 +392,7 @@
   }
 
   function enhanceTable(table) {
-    const headerRow = table.tHead?.rows?.[0] || table.querySelector("thead tr");
+    const headerRow = getHeaderRow(table);
     if (!headerRow) {
       return;
     }
@@ -360,7 +411,12 @@
     const nameIndex = findColumnIndex(headers, ["name", "package", "shipment"]);
     const statusIndex = findColumnIndex(headers, ["status", "state"]);
 
-    const daysIndex = ensureDaysColumn(table, headers, deliveryIndex);
+    const daysIndex = ensureDaysColumn(
+      table,
+      headers,
+      deliveryIndex,
+      headerRow,
+    );
     const expectedColumnCount = headerRow.cells.length;
     applyDaysValues(
       table,
@@ -368,17 +424,29 @@
       daysIndex,
       statusIndex,
       expectedColumnCount,
+      headerRow,
     );
-    sortRows(table, deliveryIndex, nameIndex, statusIndex, expectedColumnCount);
+    sortRows(
+      table,
+      deliveryIndex,
+      nameIndex,
+      statusIndex,
+      expectedColumnCount,
+      headerRow,
+    );
   }
 
   function findTargetTables() {
     const container = document.getElementById("table") || document;
     const tables = Array.from(container.querySelectorAll("table"));
     return tables.filter((table) => {
-      const headers = Array.from(
-        table.querySelectorAll("thead th, thead td"),
-      ).map((cell) => normalize(cell.textContent));
+      const headerRow = getHeaderRow(table);
+      if (!headerRow) {
+        return false;
+      }
+      const headers = Array.from(headerRow.cells).map((cell) =>
+        normalize(cell.textContent),
+      );
       if (!headers.length) {
         return false;
       }
