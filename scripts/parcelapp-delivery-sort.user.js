@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ParcelApp: Days Until Delivery + Smart Sort
 // @namespace    https://github.com/mxr/tampermonkey-scripts
-// @version      0.1.2
+// @version      0.1.3
 // @description  Adds a days-until-delivery column and sorts packages by delivery readiness.
 // @author       mxr
 // @match        https://web.parcelapp.net/*
@@ -307,14 +307,13 @@
       }
     }
 
-    const targetColumnCount = headerRow.cells.length;
     for (const body of table.tBodies) {
       const expectedRow = getExpectedDateRow(body);
       if (expectedRow && expectedRow.cells[0]) {
         while (expectedRow.cells.length > 1) {
           expectedRow.deleteCell(expectedRow.cells.length - 1);
         }
-        expectedRow.cells[0].colSpan = targetColumnCount;
+        expectedRow.cells[0].removeAttribute("colspan");
       }
 
       const primaryRow = getPrimaryShipmentRow(body);
@@ -322,17 +321,29 @@
         continue;
       }
 
-      if (!primaryRow.cells[insertAt]) {
-        const td = document.createElement("td");
-        td.dataset.tmDaysUntil = "true";
-        if (insertAt >= primaryRow.cells.length) {
-          primaryRow.appendChild(td);
-        } else {
-          primaryRow.insertBefore(td, primaryRow.cells[insertAt]);
+      for (const row of body.rows) {
+        if (row === primaryRow) {
+          continue;
         }
-      } else {
-        primaryRow.cells[insertAt].dataset.tmDaysUntil = "true";
+        const staleDaysCell = row.querySelector("td[data-tm-days-until]");
+        if (staleDaysCell) {
+          staleDaysCell.remove();
+        }
       }
+
+      let daysCell = primaryRow.querySelector("td[data-tm-days-until]");
+      if (!daysCell) {
+        daysCell = document.createElement("td");
+        daysCell.dataset.tmDaysUntil = "true";
+      }
+      daysCell.className = "centeredDetailed centerDetailed";
+      daysCell.setAttribute("rowspan", expectedRow ? "2" : "1");
+
+      if (daysCell.parentElement === primaryRow) {
+        primaryRow.removeChild(daysCell);
+      }
+      const insertBeforeCell = primaryRow.cells[insertAt] || null;
+      primaryRow.insertBefore(daysCell, insertBeforeCell);
     }
 
     return insertAt;
