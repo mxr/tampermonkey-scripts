@@ -14,6 +14,7 @@
     "use strict";
 
     const TARGET_TEXT = /use\s+security\s+code/i;
+    const TARGET_ATTR_HINT = /(security|code|mfa|2fa|otp)/i;
     const MAX_ATTEMPTS = 120;
     let attempts = 0;
     let done = false;
@@ -54,12 +55,23 @@
         return null;
     }
 
+    function findByKnownHints(root) {
+        const candidates = root.querySelectorAll('input[type="checkbox"]');
+        for (const input of candidates) {
+            const hints = `${input.getAttribute("aria-label") || ""} ${input.getAttribute("name") || ""} ${input.getAttribute("id") || ""} ${input.getAttribute("data-testid") || ""}`;
+            if (TARGET_ATTR_HINT.test(hints)) return input;
+        }
+        return null;
+    }
+
     function findTargetCheckbox() {
         for (const root of getAllRoots(document)) {
             const fromLabel = findByAssociatedLabel(root);
             if (fromLabel) return fromLabel;
             const fromNearby = findByNearbyText(root);
             if (fromNearby) return fromNearby;
+            const fromHints = findByKnownHints(root);
+            if (fromHints) return fromHints;
         }
         return null;
     }
@@ -70,6 +82,7 @@
         const checkbox = findTargetCheckbox();
         if (checkbox && !checkbox.checked) {
             checkbox.click();
+            checkbox.dispatchEvent(new Event("input", { bubbles: true }));
             checkbox.dispatchEvent(new Event("change", { bubbles: true }));
             done = true;
             observer.disconnect();
