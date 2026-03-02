@@ -4,7 +4,7 @@ Personal Tampermonkey scripts for daily browser automation.
 
 ## Disclaimer
 
-These scripts are unofficial personal automations and are not affiliated with, endorsed by, or sponsored by any website, company, or entity they modify.
+These scripts are unofficial personal automations and are not affiliated with, endorsed by, or sponsored by any website or company whose website they interact with or modify.
 
 ## Scripts
 
