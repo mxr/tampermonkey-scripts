@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ParcelApp: Days Until Delivery + Smart Sort
 // @namespace    https://github.com/mxr/tampermonkey-scripts
-// @version      0.1.0
+// @version      0.1.1
 // @description  Adds a days-until-delivery column and sorts packages by delivery readiness.
 // @author       mxr
 // @match        https://web.parcelapp.net/*
