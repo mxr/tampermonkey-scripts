@@ -4,6 +4,7 @@ repos:
   hooks:
   - id: end-of-file-fixer
   - id: trailing-whitespace
+  - id: sync-pre-commit-dependencies
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
   rev: v2.16.0
   hooks:
@@ -15,5 +16,6 @@ repos:
   - id: eslint
     args: [--fix]
     additional_dependencies:
+    - eslint@9.39.1
     - '@eslint/js@9.39.1'
     - globals@15.15.0
