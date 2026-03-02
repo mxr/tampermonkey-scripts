@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         E*TRADE Login: Enable Use Security Code
 // @namespace    https://github.com/mxr/tampermonkey-scripts
-// @version      0.1.1
+// @version      1.0.0
 // @description  Automatically checks the "Use security code" checkbox on E*TRADE login.
 // @author       mxr
 // @match        https://us.etrade.com/home/welcome-back*
@@ -12,6 +12,7 @@
 
 (function () {
   "use strict";
+  // Unofficial user script; not affiliated with or endorsed by E*TRADE or related entities.
 
   const TARGET_TEXT = /use\s+security\s+code/i;
   const TARGET_ATTR_HINT = /(security|code|mfa|2fa|otp)/i;
