@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Parcel: Days Until Delivery + Smart Sort
 // @namespace    https://github.com/mxr/tampermonkey-scripts
-// @version      1.0.1
+// @version      1.0.2
 // @description  Adds a days-until-delivery column and sorts packages by delivery readiness.
 // @author       mxr
 // @match        https://web.parcelapp.net/*
@@ -15,6 +15,8 @@
 
   const HEADER_DAYS_TEXT = "Days Left";
   const MS_PER_DAY = 24 * 60 * 60 * 1000;
+  const MOBILE_DELETE_CONFIRM_MESSAGE =
+    "Delete this package? This action cannot be undone.";
 
   function normalize(text) {
     return (text || "").replace(/\s+/g, " ").trim().toLowerCase();
@@ -505,6 +507,86 @@
 
   let scheduled = false;
 
+  function getDeleteControlFromTarget(target) {
+    if (!(target instanceof Element)) {
+      return null;
+    }
+
+    const control = target.closest(
+      "button, a, [role='button'], [onclick], input[type='button'], input[type='submit']",
+    );
+    if (!control) {
+      return null;
+    }
+    if (!control.closest("#table")) {
+      return null;
+    }
+
+    const controlText = normalize(control.textContent);
+    const targetText = normalize(target.textContent);
+    const metadata = normalize(
+      [
+        control.getAttribute("aria-label"),
+        control.getAttribute("title"),
+        control.getAttribute("data-testid"),
+        control.getAttribute("name"),
+        control.getAttribute("onclick"),
+        control.id,
+        control.className,
+        target.getAttribute("aria-label"),
+        target.getAttribute("title"),
+        target.className,
+      ]
+        .filter(Boolean)
+        .join(" "),
+    );
+    const combined = `${controlText} ${targetText} ${metadata}`;
+
+    if (/\b(delete|remove|trash|discard)\b/i.test(combined)) {
+      return control;
+    }
+
+    const looksLikeCloseX = /(?:^|\s)x(?:\s|$)/i.test(
+      controlText || targetText,
+    );
+    const deleteLikeClass = /\b(delete|remove|trash|close|cross|times)\b/i.test(
+      metadata,
+    );
+    if (looksLikeCloseX && deleteLikeClass) {
+      return control;
+    }
+
+    if (
+      control.querySelector(
+        'img[alt*="delete" i], [aria-label*="delete" i], [title*="delete" i]',
+      )
+    ) {
+      return control;
+    }
+
+    return null;
+  }
+
+  function installDeleteConfirmation() {
+    document.addEventListener(
+      "click",
+      (event) => {
+        const control = getDeleteControlFromTarget(event.target);
+        if (!control) {
+          return;
+        }
+        const confirmed = window.confirm(MOBILE_DELETE_CONFIRM_MESSAGE);
+        if (confirmed) {
+          return;
+        }
+        event.preventDefault();
+        event.stopPropagation();
+        event.stopImmediatePropagation();
+      },
+      true,
+    );
+  }
+
   function run() {
     scheduled = false;
     for (const table of findTargetTables()) {
@@ -526,5 +608,6 @@
     subtree: true,
   });
 
+  installDeleteConfirmation();
   scheduleRun();
 })();
