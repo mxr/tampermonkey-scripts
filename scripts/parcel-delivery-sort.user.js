@@ -511,27 +511,10 @@
     if (!(target instanceof Element)) {
       return false;
     }
-
-    const control = target.closest(
-      "a, button, input[type='button'], input[type='submit']",
-    );
-    if (!control || !control.closest("#table")) {
-      return false;
-    }
-
-    const label = normalize(
-      [
-        control.textContent,
-        control.getAttribute("value"),
-        control.getAttribute("title"),
-        control.getAttribute("aria-label"),
-        control.getAttribute("onclick"),
-      ]
-        .filter(Boolean)
-        .join(" "),
-    );
-    return (
-      /\bdelete\b/.test(label) || /\bdelete\(/.test(label) || label === "x"
+    return Boolean(
+      target.closest(
+        '#table a[onclick*="deleteTracking("][title="Delete"], #table a[onclick*="deleteTracking("] img[alt="Delete"]',
+      ),
     );
   }
 
