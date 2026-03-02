@@ -5,6 +5,7 @@ Personal Tampermonkey scripts for daily browser automation.
 ## Scripts
 
 - `scripts/etrade-login-security-code.user.js`: Automatically enables "Use security code" on the E*TRADE login experience.
+- `scripts/parcelapp-delivery-sort.user.js`: Adds a "Days Until Delivery" column on ParcelApp and sorts packages by delivery readiness.
 
 ## Usage
 
