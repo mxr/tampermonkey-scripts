@@ -24,7 +24,9 @@
     const treeWalker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
     while (treeWalker.nextNode()) {
       const node = treeWalker.currentNode;
-      if (node && node.shadowRoot) roots.push(node.shadowRoot);
+      if (node && node.shadowRoot) {
+        roots.push(node.shadowRoot);
+      }
     }
     return roots;
   }
@@ -32,14 +34,20 @@
   function findByAssociatedLabel(root) {
     const labels = root.querySelectorAll("label");
     for (const label of labels) {
-      if (!TARGET_TEXT.test((label.textContent || "").trim())) continue;
+      if (!TARGET_TEXT.test((label.textContent || "").trim())) {
+        continue;
+      }
       const forId = label.getAttribute("for");
       if (forId) {
         const input = root.querySelector(`#${CSS.escape(forId)}`);
-        if (input && input.type === "checkbox") return input;
+        if (input && input.type === "checkbox") {
+          return input;
+        }
       }
       const nestedInput = label.querySelector('input[type="checkbox"]');
-      if (nestedInput) return nestedInput;
+      if (nestedInput) {
+        return nestedInput;
+      }
     }
     return null;
   }
@@ -49,9 +57,13 @@
     for (const input of candidates) {
       const containerText =
         input.closest("label, div, li, td, span")?.textContent || "";
-      if (TARGET_TEXT.test(containerText)) return input;
+      if (TARGET_TEXT.test(containerText)) {
+        return input;
+      }
       const aria = `${input.getAttribute("aria-label") || ""} ${input.getAttribute("name") || ""} ${input.getAttribute("id") || ""}`;
-      if (TARGET_TEXT.test(aria)) return input;
+      if (TARGET_TEXT.test(aria)) {
+        return input;
+      }
     }
     return null;
   }
@@ -60,7 +72,9 @@
     const candidates = root.querySelectorAll('input[type="checkbox"]');
     for (const input of candidates) {
       const hints = `${input.getAttribute("aria-label") || ""} ${input.getAttribute("name") || ""} ${input.getAttribute("id") || ""} ${input.getAttribute("data-testid") || ""}`;
-      if (TARGET_ATTR_HINT.test(hints)) return input;
+      if (TARGET_ATTR_HINT.test(hints)) {
+        return input;
+      }
     }
     return null;
   }
@@ -68,17 +82,25 @@
   function findTargetCheckbox() {
     for (const root of getAllRoots(document)) {
       const fromLabel = findByAssociatedLabel(root);
-      if (fromLabel) return fromLabel;
+      if (fromLabel) {
+        return fromLabel;
+      }
       const fromNearby = findByNearbyText(root);
-      if (fromNearby) return fromNearby;
+      if (fromNearby) {
+        return fromNearby;
+      }
       const fromHints = findByKnownHints(root);
-      if (fromHints) return fromHints;
+      if (fromHints) {
+        return fromHints;
+      }
     }
     return null;
   }
 
   function enableIfFound() {
-    if (done) return;
+    if (done) {
+      return;
+    }
     attempts += 1;
     const checkbox = findTargetCheckbox();
     if (checkbox && !checkbox.checked) {
@@ -109,6 +131,8 @@
   enableIfFound();
   const intervalId = setInterval(() => {
     enableIfFound();
-    if (done || attempts >= MAX_ATTEMPTS) clearInterval(intervalId);
+    if (done || attempts >= MAX_ATTEMPTS) {
+      clearInterval(intervalId);
+    }
   }, 250);
 })();

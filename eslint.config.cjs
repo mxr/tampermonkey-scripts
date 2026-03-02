@@ -14,9 +14,12 @@ module.exports = [
         ...globals.es2021,
       },
     },
+  },
+  eslintConfigPrettier,
+  {
+    files: ["scripts/**/*.js"],
     rules: {
       curly: ["error", "all"],
     },
   },
-  eslintConfigPrettier,
 ];
