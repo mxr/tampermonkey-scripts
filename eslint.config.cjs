@@ -14,6 +14,9 @@ module.exports = [
         ...globals.es2021,
       },
     },
+    rules: {
+      curly: ["error", "all"],
+    },
   },
   eslintConfigPrettier,
 ];
