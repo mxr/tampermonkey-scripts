@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ParcelApp: Days Until Delivery + Smart Sort
 // @namespace    https://github.com/mxr/tampermonkey-scripts
-// @version      0.1.4
+// @version      0.1.5
 // @description  Adds a days-until-delivery column and sorts packages by delivery readiness.
 // @author       mxr
 // @match        https://web.parcelapp.net/*
@@ -313,6 +313,9 @@
     }
     headerCell.textContent = HEADER_DAYS_TEXT;
     headerCell.dataset.tmDaysUntil = "true";
+    headerCell.style.whiteSpace = "nowrap";
+    headerCell.style.width = "88px";
+    headerCell.style.minWidth = "88px";
     if (headerCell.parentElement === headerRow) {
       headerRow.removeChild(headerCell);
     }
@@ -349,6 +352,9 @@
       }
       daysCell.className = "centeredDetailed centerDetailed";
       daysCell.setAttribute("rowspan", expectedRow ? "2" : "1");
+      daysCell.style.whiteSpace = "nowrap";
+      daysCell.style.width = "88px";
+      daysCell.style.minWidth = "88px";
 
       if (daysCell.parentElement === primaryRow) {
         primaryRow.removeChild(daysCell);
