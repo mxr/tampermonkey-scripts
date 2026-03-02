@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Parcel: Days Until Delivery + Smart Sort
 // @namespace    https://github.com/mxr/tampermonkey-scripts
-// @version      1.0.1
+// @version      1.0.2
 // @description  Adds a days-until-delivery column and sorts packages by delivery readiness.
 // @author       mxr
 // @match        https://web.parcelapp.net/*
@@ -15,6 +15,8 @@
 
   const HEADER_DAYS_TEXT = "Days Left";
   const MS_PER_DAY = 24 * 60 * 60 * 1000;
+  const DELETE_CONFIRM_MESSAGE =
+    "Delete this package? This action cannot be undone.";
 
   function normalize(text) {
     return (text || "").replace(/\s+/g, " ").trim().toLowerCase();
@@ -505,6 +507,33 @@
 
   let scheduled = false;
 
+  function shouldConfirmDelete(target) {
+    return (
+      target instanceof Element &&
+      Boolean(
+        target.closest(
+          '#table a[onclick*="deleteTracking("][title="Delete"], #table a[onclick*="deleteTracking("] img[alt="Delete"]',
+        ),
+      )
+    );
+  }
+
+  function installDeleteConfirmation() {
+    document.addEventListener(
+      "click",
+      (event) => {
+        if (
+          shouldConfirmDelete(event.target) &&
+          !window.confirm(DELETE_CONFIRM_MESSAGE)
+        ) {
+          event.preventDefault();
+          event.stopImmediatePropagation();
+        }
+      },
+      true,
+    );
+  }
+
   function run() {
     scheduled = false;
     for (const table of findTargetTables()) {
@@ -526,5 +555,6 @@
     subtree: true,
   });
 
+  installDeleteConfirmation();
   scheduleRun();
 })();
