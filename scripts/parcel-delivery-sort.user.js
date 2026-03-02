@@ -508,13 +508,13 @@
   let scheduled = false;
 
   function shouldConfirmDelete(target) {
-    if (!(target instanceof Element)) {
-      return false;
-    }
-    return Boolean(
-      target.closest(
-        '#table a[onclick*="deleteTracking("][title="Delete"], #table a[onclick*="deleteTracking("] img[alt="Delete"]',
-      ),
+    return (
+      target instanceof Element &&
+      Boolean(
+        target.closest(
+          '#table a[onclick*="deleteTracking("][title="Delete"], #table a[onclick*="deleteTracking("] img[alt="Delete"]',
+        ),
+      )
     );
   }
 
