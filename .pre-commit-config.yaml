@@ -1,19 +1,19 @@
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v6.0.0
-    hooks:
-      - id: end-of-file-fixer
-      - id: trailing-whitespace
-  - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-    rev: v2.16.0
-    hooks:
-      - id: pretty-format-yaml
-        args: [--autofix]
-  - repo: https://github.com/pre-commit/mirrors-eslint
-    rev: v9.39.1
-    hooks:
-      - id: eslint
-        args: [--fix]
-        additional_dependencies:
-          - "@eslint/js@9.39.1"
-          - "globals@15.15.0"
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: v6.0.0
+  hooks:
+  - id: end-of-file-fixer
+  - id: trailing-whitespace
+- repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
+  rev: v2.16.0
+  hooks:
+  - id: pretty-format-yaml
+    args: [--autofix]
+- repo: https://github.com/pre-commit/mirrors-eslint
+  rev: v9.39.1
+  hooks:
+  - id: eslint
+    args: [--fix]
+    additional_dependencies:
+    - '@eslint/js@9.39.1'
+    - globals@15.15.0
