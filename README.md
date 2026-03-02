@@ -2,6 +2,10 @@
 
 Personal Tampermonkey scripts for daily browser automation.
 
+## Disclaimer
+
+These scripts are unofficial personal automations and are not affiliated with, endorsed by, or sponsored by any website, company, or entity they modify.
+
 ## Scripts
 
 - `scripts/etrade-login-security-code.user.js`: Automatically enables "Use security code" on the E*TRADE login experience.

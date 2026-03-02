@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         ParcelApp: Days Until Delivery + Smart Sort
 // @namespace    https://github.com/mxr/tampermonkey-scripts
-// @version      0.1.6
+// @version      0.1.7
 // @description  Adds a days-until-delivery column and sorts packages by delivery readiness.
 // @author       mxr
 // @match        https://web.parcelapp.net/*
@@ -11,6 +11,7 @@
 
 (function () {
   "use strict";
+  // Unofficial user script; not affiliated with or endorsed by ParcelApp or related entities.
 
   const HEADER_DAYS_TEXT = "Days Left";
   const MS_PER_DAY = 24 * 60 * 60 * 1000;
