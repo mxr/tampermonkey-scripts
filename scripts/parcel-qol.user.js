@@ -1,8 +1,8 @@
 // ==UserScript==
-// @name         Parcel: Days Until Delivery + Smart Sort
+// @name         Parcel: Quality of Life
 // @namespace    https://github.com/mxr/tampermonkey-scripts
-// @version      1.0.2
-// @description  Adds a days-until-delivery column and sorts packages by delivery readiness.
+// @version      1.1.0
+// @description  Adds days-left indicators, smart sorting, and delete confirmation prompts on Parcel.
 // @author       mxr
 // @match        https://web.parcelapp.net/*
 // @run-at       document-idle
@@ -12,6 +12,7 @@
 (function () {
   "use strict";
   // Unofficial user script; not affiliated with or endorsed by Parcel or related entities.
+  // QoL features: days-left column, delivery-aware sorting, and delete confirmation.
 
   const HEADER_DAYS_TEXT = "Days Left";
   const MS_PER_DAY = 24 * 60 * 60 * 1000;

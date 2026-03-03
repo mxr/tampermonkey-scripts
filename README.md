@@ -9,7 +9,7 @@ These scripts are unofficial personal automations and are not affiliated with, e
 ## Scripts
 
 - `scripts/etrade-login-security-code.user.js`: Automatically enables "Use security code" on the E*TRADE login experience.
-- `scripts/parcel-delivery-sort.user.js`: Adds a "Days Until Delivery" column on Parcel and sorts packages by delivery readiness.
+- `scripts/parcel-qol.user.js`: Adds Parcel quality-of-life improvements including a days-left column, smart sorting, and delete confirmation.
 
 ## Usage
 
