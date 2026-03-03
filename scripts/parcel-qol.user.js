@@ -12,7 +12,6 @@
 (function () {
   "use strict";
   // Unofficial user script; not affiliated with or endorsed by Parcel or related entities.
-  // QoL features: days-left column, delivery-aware sorting, and delete confirmation.
 
   const HEADER_DAYS_TEXT = "Days Left";
   const MS_PER_DAY = 24 * 60 * 60 * 1000;
