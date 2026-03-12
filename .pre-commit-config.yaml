@@ -5,7 +5,7 @@ repos:
   - id: end-of-file-fixer
   - id: trailing-whitespace
 - repo: https://github.com/pre-commit/sync-pre-commit-deps
-  rev: v0.0.3
+  rev: 6e480124d3fa48bc59ab8a95117eef5990a50dea
   hooks:
   - id: sync-pre-commit-deps
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
