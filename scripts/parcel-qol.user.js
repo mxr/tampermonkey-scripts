@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Parcel: Quality of Life
 // @namespace    https://github.com/mxr/tampermonkey-scripts
-// @version      1.1.0
+// @version      1.1.1
 // @description  Adds days-left indicators, smart sorting, and delete confirmation prompts on Parcel.
 // @author       mxr
 // @match        https://web.parcelapp.net/*
@@ -20,6 +20,17 @@
 
   function normalize(text) {
     return (text || "").replace(/\s+/g, " ").trim().toLowerCase();
+  }
+
+  function getNoDataStatusText() {
+    return typeof globalThis.text_no_data === "string" &&
+      globalThis.text_no_data.trim()
+      ? globalThis.text_no_data
+      : "No data available";
+  }
+
+  function isNoDataStatusText(text) {
+    return normalize(text) === normalize(getNoDataStatusText());
   }
 
   function parseDateValue(text) {
@@ -169,8 +180,7 @@
       return true;
     }
 
-    const statusText =
-      statusIndex >= 0 ? normalize(row.cells[statusIndex]?.textContent) : "";
+    const statusText = normalize(row.cells[statusIndex]?.textContent);
     const rowText = normalize(row.textContent);
     const haystack = `${statusText} ${rowText}`;
 
@@ -194,32 +204,25 @@
   }
 
   function getDeliveryDate(row, deliveryIndex, statusIndex) {
-    if (deliveryIndex >= 0) {
-      const fromCell = parseDateValue(
-        row.cells[deliveryIndex]?.textContent || "",
-      );
-      if (fromCell) {
-        return fromCell;
-      }
+    const fromCell = parseDateValue(
+      row.cells[deliveryIndex]?.textContent || "",
+    );
+    if (fromCell) {
+      return fromCell;
     }
 
-    if (statusIndex >= 0) {
-      const fromStatus = extractDeliveryDateFromText(
-        row.cells[statusIndex]?.textContent || "",
-      );
-      if (fromStatus) {
-        return fromStatus;
-      }
+    const fromStatus = extractDeliveryDateFromText(
+      row.cells[statusIndex]?.textContent || "",
+    );
+    if (fromStatus) {
+      return fromStatus;
     }
 
     return extractDeliveryDateFromText(row.textContent || "");
   }
 
   function getNameValue(row, nameIndex) {
-    if (nameIndex >= 0) {
-      return normalize(row.cells[nameIndex]?.textContent || "");
-    }
-    return normalize(row.cells[0]?.textContent || "");
+    return normalize(row.cells[nameIndex]?.textContent || "");
   }
 
   function calculateDaysUntil(date) {
@@ -240,9 +243,12 @@
     return diff;
   }
 
-  function getDaysCellValue(delivered, date) {
+  function getDaysCellValue(delivered, date, statusText) {
     if (delivered) {
       return "✅";
+    }
+    if (isNoDataStatusText(statusText)) {
+      return "❔";
     }
     if (!date) {
       return "🚛";
@@ -394,9 +400,11 @@
         statusIndex,
       );
       const delivered = isDeliveredRow(primaryRow, statusIndex);
+      const statusText = primaryRow.cells[statusIndex]?.textContent || "";
       primaryRow.cells[daysIndex].textContent = getDaysCellValue(
         delivered,
         deliveryDate,
+        statusText,
       );
     }
   }
@@ -408,6 +416,8 @@
         return { body, index, group: 3, date: null, name: "", sortable: false };
       }
       const delivered = isDeliveredRow(primaryRow, statusIndex);
+      const statusText = primaryRow.cells[statusIndex]?.textContent || "";
+      const noData = isNoDataStatusText(statusText);
       const date = getDeliveryDateForBody(
         body,
         primaryRow,
@@ -418,7 +428,7 @@
       return {
         body,
         index,
-        group: delivered ? 2 : date ? 0 : 1,
+        group: date ? 0 : noData ? 1 : delivered ? 3 : 2,
         date,
         name,
         sortable: true,
