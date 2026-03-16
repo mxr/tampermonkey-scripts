@@ -251,11 +251,11 @@
     return diff;
   }
 
-  function getDaysCellValue(delivered, date) {
+  function getDaysCellValue(delivered, date, statusText) {
     if (delivered) {
       return "✅";
     }
-    if (date === "no-data") {
+    if (isNoDataStatusText(statusText)) {
       return "❔";
     }
     if (!date) {
@@ -414,7 +414,8 @@
           : "";
       primaryRow.cells[daysIndex].textContent = getDaysCellValue(
         delivered,
-        isNoDataStatusText(statusText) ? "no-data" : deliveryDate,
+        deliveryDate,
+        statusText,
       );
     }
   }
