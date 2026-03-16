@@ -180,8 +180,7 @@
       return true;
     }
 
-    const statusText =
-      statusIndex >= 0 ? normalize(row.cells[statusIndex]?.textContent) : "";
+    const statusText = normalize(row.cells[statusIndex]?.textContent);
     const rowText = normalize(row.textContent);
     const haystack = `${statusText} ${rowText}`;
 
@@ -205,32 +204,25 @@
   }
 
   function getDeliveryDate(row, deliveryIndex, statusIndex) {
-    if (deliveryIndex >= 0) {
-      const fromCell = parseDateValue(
-        row.cells[deliveryIndex]?.textContent || "",
-      );
-      if (fromCell) {
-        return fromCell;
-      }
+    const fromCell = parseDateValue(
+      row.cells[deliveryIndex]?.textContent || "",
+    );
+    if (fromCell) {
+      return fromCell;
     }
 
-    if (statusIndex >= 0) {
-      const fromStatus = extractDeliveryDateFromText(
-        row.cells[statusIndex]?.textContent || "",
-      );
-      if (fromStatus) {
-        return fromStatus;
-      }
+    const fromStatus = extractDeliveryDateFromText(
+      row.cells[statusIndex]?.textContent || "",
+    );
+    if (fromStatus) {
+      return fromStatus;
     }
 
     return extractDeliveryDateFromText(row.textContent || "");
   }
 
   function getNameValue(row, nameIndex) {
-    if (nameIndex >= 0) {
-      return normalize(row.cells[nameIndex]?.textContent || "");
-    }
-    return normalize(row.cells[0]?.textContent || "");
+    return normalize(row.cells[nameIndex]?.textContent || "");
   }
 
   function calculateDaysUntil(date) {
@@ -408,10 +400,7 @@
         statusIndex,
       );
       const delivered = isDeliveredRow(primaryRow, statusIndex);
-      const statusText =
-        statusIndex >= 0
-          ? primaryRow.cells[statusIndex]?.textContent || ""
-          : "";
+      const statusText = primaryRow.cells[statusIndex]?.textContent || "";
       primaryRow.cells[daysIndex].textContent = getDaysCellValue(
         delivered,
         deliveryDate,
@@ -427,10 +416,7 @@
         return { body, index, group: 3, date: null, name: "", sortable: false };
       }
       const delivered = isDeliveredRow(primaryRow, statusIndex);
-      const statusText =
-        statusIndex >= 0
-          ? primaryRow.cells[statusIndex]?.textContent || ""
-          : "";
+      const statusText = primaryRow.cells[statusIndex]?.textContent || "";
       const noData = isNoDataStatusText(statusText);
       const date = getDeliveryDateForBody(
         body,
