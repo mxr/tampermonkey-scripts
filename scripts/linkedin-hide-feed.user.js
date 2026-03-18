@@ -16,32 +16,16 @@
   const FEED_PATH_PREFIX = "/feed";
   const MAIN_FEED_SELECTOR = 'main[aria-label="Main Feed"]';
   const FEED_CONTENT_SELECTOR = '[data-finite-scroll-hotkey-context="FEED"]';
-  const hiddenElements = new Set();
 
   function isFeedPage() {
     return window.location.pathname.startsWith(FEED_PATH_PREFIX);
   }
 
   function hideElement(element) {
-    if (!element || hiddenElements.has(element)) {
+    if (!element) {
       return;
     }
-    element.dataset.linkedinHideFeedPreviousDisplay =
-      element.style.display || "";
     element.style.display = "none";
-    hiddenElements.add(element);
-  }
-
-  function restoreHiddenElements() {
-    for (const element of hiddenElements) {
-      if (!element.isConnected) {
-        continue;
-      }
-      element.style.display =
-        element.dataset.linkedinHideFeedPreviousDisplay || "";
-      delete element.dataset.linkedinHideFeedPreviousDisplay;
-    }
-    hiddenElements.clear();
   }
 
   function findFeedContainer() {
@@ -56,7 +40,6 @@
 
   function hideFeed() {
     if (!isFeedPage()) {
-      restoreHiddenElements();
       return;
     }
 
