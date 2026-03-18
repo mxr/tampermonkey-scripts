@@ -13,13 +13,8 @@
   "use strict";
   // Unofficial user script; not affiliated with or endorsed by LinkedIn or related entities.
 
-  const FEED_PATH_PREFIX = "/feed";
   const MAIN_FEED_SELECTOR = 'main[aria-label="Main Feed"]';
   const FEED_CONTENT_SELECTOR = '[data-finite-scroll-hotkey-context="FEED"]';
-
-  function isFeedPage() {
-    return window.location.pathname.startsWith(FEED_PATH_PREFIX);
-  }
 
   function hideElement(element) {
     if (!element) {
@@ -39,10 +34,6 @@
   }
 
   function hideFeed() {
-    if (!isFeedPage()) {
-      return;
-    }
-
     const feedContainer = findFeedContainer();
     if (feedContainer) {
       hideElement(feedContainer);
