@@ -21,13 +21,12 @@
   }
 
   function findFeedContainer() {
-    const mainFeed = document.querySelector(MAIN_FEED_SELECTOR);
-    if (!mainFeed) {
-      return null;
-    }
-
-    const feedContent = mainFeed.querySelector(FEED_CONTENT_SELECTOR);
-    return feedContent?.closest(".scaffold-finite-scroll") || null;
+    return (
+      document
+        .querySelector(MAIN_FEED_SELECTOR)
+        ?.querySelector(FEED_CONTENT_SELECTOR)
+        ?.closest(".scaffold-finite-scroll") || null
+    );
   }
 
   function hideFeed() {
