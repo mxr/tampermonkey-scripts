@@ -14,12 +14,8 @@
   // Unofficial user script; not affiliated with or endorsed by LinkedIn or related entities.
 
   const FEED_PATH_PREFIX = "/feed";
-  const FEED_SELECTORS = [
-    '[data-finite-scroll-hotkey-context="FEED"]',
-    ".feed-container-theme",
-    ".scaffold-layout__main .scaffold-finite-scroll",
-    ".scaffold-finite-scroll.scaffold-finite-scroll--infinite",
-  ];
+  const MAIN_FEED_SELECTOR = 'main[aria-label="Main Feed"]';
+  const FEED_CONTENT_SELECTOR = '[data-finite-scroll-hotkey-context="FEED"]';
   const hiddenElements = new Set();
 
   function isFeedPage() {
@@ -48,17 +44,25 @@
     hiddenElements.clear();
   }
 
+  function findFeedContainer() {
+    const mainFeed = document.querySelector(MAIN_FEED_SELECTOR);
+    if (!mainFeed) {
+      return null;
+    }
+
+    const feedContent = mainFeed.querySelector(FEED_CONTENT_SELECTOR);
+    return feedContent?.closest(".scaffold-finite-scroll") || null;
+  }
+
   function hideFeed() {
     if (!isFeedPage()) {
       restoreHiddenElements();
       return;
     }
 
-    for (const selector of FEED_SELECTORS) {
-      const elements = document.querySelectorAll(selector);
-      for (const element of elements) {
-        hideElement(element);
-      }
+    const feedContainer = findFeedContainer();
+    if (feedContainer) {
+      hideElement(feedContainer);
     }
   }
 
