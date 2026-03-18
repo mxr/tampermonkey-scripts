@@ -16,22 +16,12 @@
   const MAIN_FEED_SELECTOR = 'main[aria-label="Main Feed"]';
   const FEED_CONTENT_SELECTOR = '[data-finite-scroll-hotkey-context="FEED"]';
 
-  function hideElement(element) {
-    element?.style?.setProperty("display", "none");
-  }
-
-  function findFeedContainer() {
-    return (
-      document
-        .querySelector(MAIN_FEED_SELECTOR)
-        ?.querySelector(FEED_CONTENT_SELECTOR)
-        ?.closest(".scaffold-finite-scroll") || null
-    );
-  }
-
   function hideFeed() {
-    const feedContainer = findFeedContainer();
-    hideElement(feedContainer);
+    document
+      .querySelector(MAIN_FEED_SELECTOR)
+      ?.querySelector(FEED_CONTENT_SELECTOR)
+      ?.closest(".scaffold-finite-scroll")
+      ?.style?.setProperty("display", "none");
   }
 
   function onLocationChange() {
