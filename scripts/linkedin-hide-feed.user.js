@@ -17,10 +17,7 @@
   const FEED_CONTENT_SELECTOR = '[data-finite-scroll-hotkey-context="FEED"]';
 
   function hideElement(element) {
-    if (!element) {
-      return;
-    }
-    element.style.display = "none";
+    element?.style?.setProperty("display", "none");
   }
 
   function findFeedContainer() {
@@ -35,9 +32,7 @@
 
   function hideFeed() {
     const feedContainer = findFeedContainer();
-    if (feedContainer) {
-      hideElement(feedContainer);
-    }
+    hideElement(feedContainer);
   }
 
   function onLocationChange() {
