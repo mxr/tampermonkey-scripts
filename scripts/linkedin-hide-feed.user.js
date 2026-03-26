@@ -19,13 +19,52 @@
   const FEED_PAGINATION_PATH = "/flagship-web/rsc-action/actions/pagination";
   const FEED_PAGINATION_MARKER =
     "sduiid=com.linkedin.sdui.pagers.feed.mainFeed";
+  const FEED_REQUEST_BODY_MARKERS = [
+    '"pagerId":"com.linkedin.sdui.pagers.feed.mainFeed"',
+    '"screenId":"com.linkedin.sdui.flagshipnav.feed.MainFeed"',
+    '"feedType":"FeedType_MAIN_FEED_RELEVANCE"',
+  ];
 
-  function isFeedPaginationRequest(url) {
+  function bodyToText(body) {
+    if (typeof body === "string") {
+      return body;
+    }
+    if (body instanceof URLSearchParams) {
+      return body.toString();
+    }
+    if (body instanceof Blob) {
+      return "";
+    }
+    if (body instanceof FormData) {
+      return Array.from(body.entries())
+        .map(
+          ([key, value]) => `${key}=${typeof value === "string" ? value : ""}`,
+        )
+        .join("&");
+    }
+    if (
+      body instanceof ArrayBuffer ||
+      ArrayBuffer.isView(body) ||
+      body == null
+    ) {
+      return "";
+    }
+    return String(body);
+  }
+
+  function bodyLooksLikeFeedRequest(bodyText) {
     return (
+      typeof bodyText === "string" &&
+      FEED_REQUEST_BODY_MARKERS.some((marker) => bodyText.includes(marker))
+    );
+  }
+
+  function shouldBlockFeedRequest(url, bodyText) {
+    const urlMatches =
       typeof url === "string" &&
       url.includes(FEED_PAGINATION_PATH) &&
-      url.includes(FEED_PAGINATION_MARKER)
-    );
+      url.includes(FEED_PAGINATION_MARKER);
+    return urlMatches || bodyLooksLikeFeedRequest(bodyText);
   }
 
   function blockFeedPaginationRequests() {
@@ -37,40 +76,44 @@
           : input instanceof URL
             ? input.href
             : input?.url;
-      if (isFeedPaginationRequest(url)) {
-        return new Response("{}", {
-          status: 200,
-          headers: { "Content-Type": "application/json" },
-        });
+      const initBodyText = bodyToText(init?.body);
+      const requestBodyText =
+        !initBodyText && input instanceof Request && !input.bodyUsed
+          ? await input
+              .clone()
+              .text()
+              .catch(() => "")
+          : "";
+
+      if (shouldBlockFeedRequest(url, initBodyText || requestBodyText)) {
+        return new Promise(() => {});
       }
       return originalFetch.call(this, input, init);
     };
 
     const originalOpen = XMLHttpRequest.prototype.open;
     XMLHttpRequest.prototype.open = function open(method, url, ...args) {
-      this._linkedinHideFeedBlocked = isFeedPaginationRequest(url);
+      this._linkedinHideFeedUrl = url;
       return originalOpen.call(this, method, url, ...args);
     };
 
     const originalSend = XMLHttpRequest.prototype.send;
     XMLHttpRequest.prototype.send = function send(body) {
-      if (this._linkedinHideFeedBlocked) {
-        Object.defineProperties(this, {
-          readyState: { configurable: true, value: 4 },
-          status: { configurable: true, value: 200 },
-          statusText: { configurable: true, value: "OK" },
-          response: { configurable: true, value: "{}" },
-          responseText: { configurable: true, value: "{}" },
-        });
-        queueMicrotask(() => {
-          this.dispatchEvent(new Event("readystatechange"));
-          this.dispatchEvent(new Event("load"));
-          this.dispatchEvent(new Event("loadend"));
-        });
+      if (shouldBlockFeedRequest(this._linkedinHideFeedUrl, bodyToText(body))) {
         return;
       }
       return originalSend.call(this, body);
     };
+
+    const originalSendBeacon = navigator.sendBeacon?.bind(navigator);
+    if (originalSendBeacon) {
+      navigator.sendBeacon = function sendBeacon(url, data) {
+        if (shouldBlockFeedRequest(url, bodyToText(data))) {
+          return false;
+        }
+        return originalSendBeacon(url, data);
+      };
+    }
   }
 
   function hideFeed() {
