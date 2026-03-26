@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         LinkedIn: Hide News Feed
 // @namespace    https://github.com/mxr/tampermonkey-scripts
-// @version      1.0.0
+// @version      1.0.1
 // @description  Hides the LinkedIn home feed.
 // @author       mxr
 // @match        https://www.linkedin.com/*
@@ -13,15 +13,15 @@
   "use strict";
   // Unofficial user script; not affiliated with or endorsed by LinkedIn or related entities.
 
-  const MAIN_FEED_SELECTOR = 'main[aria-label="Main Feed"]';
-  const FEED_CONTENT_SELECTOR = '[data-finite-scroll-hotkey-context="FEED"]';
+  const MAIN_FEED_SELECTOR = '[data-testid="mainFeed"]';
+  const FEED_ITEM_SELECTOR =
+    '[componentkey*="FeedType_MAIN_FEED_RELEVANCE"], [role="listitem"][componentkey*="FeedType_MAIN_FEED_RELEVANCE"]';
 
   function hideFeed() {
     document
       .querySelector(MAIN_FEED_SELECTOR)
-      ?.querySelector(FEED_CONTENT_SELECTOR)
-      ?.closest(".scaffold-finite-scroll")
-      ?.style?.setProperty("display", "none");
+      ?.querySelectorAll(FEED_ITEM_SELECTOR)
+      ?.forEach((element) => element.style.setProperty("display", "none"));
   }
 
   function onLocationChange() {
