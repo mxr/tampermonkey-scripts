@@ -5,7 +5,7 @@
 // @description  Hides the LinkedIn home feed.
 // @author       mxr
 // @match        https://www.linkedin.com/*
-// @run-at       document-end
+// @run-at       document-start
 // @grant        none
 // ==/UserScript==
 
