@@ -14,7 +14,7 @@ repos:
   - id: pretty-format-yaml
     args: [--autofix]
 - repo: https://github.com/JoC0de/pre-commit-prettier
-  rev: v3.8.1
+  rev: v3.8.2
   hooks:
   - id: prettier
     types: [javascript]
