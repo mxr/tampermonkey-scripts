@@ -1,25 +1,25 @@
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: v6.0.0
+  rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
   hooks:
   - id: end-of-file-fixer
   - id: trailing-whitespace
 - repo: https://github.com/pre-commit/sync-pre-commit-deps
-  rev: v0.0.3
+  rev: 8afb59c50a7d9f8197e8fc37d885f7896635735f  # frozen: v0.0.3
   hooks:
   - id: sync-pre-commit-deps
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-  rev: v2.16.0
+  rev: 4380fbb73a154b5f5624794c1c78d9719ccc860f  # frozen: v2.16.0
   hooks:
   - id: pretty-format-yaml
     args: [--autofix]
 - repo: https://github.com/JoC0de/pre-commit-prettier
-  rev: v3.8.3
+  rev: 7ffc7362fefc5a14935c84e35d76dcf62b519291  # frozen: v3.8.3
   hooks:
   - id: prettier
     types: [javascript]
 - repo: https://github.com/pre-commit/mirrors-eslint
-  rev: v10.3.0
+  rev: 9158d5162f915488785c296b5d08d6d18be10d32  # frozen: v10.3.0
   hooks:
   - id: eslint
     args: [--fix]
