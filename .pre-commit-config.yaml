@@ -4,27 +4,12 @@ repos:
   hooks:
   - id: end-of-file-fixer
   - id: trailing-whitespace
-- repo: https://github.com/pre-commit/sync-pre-commit-deps
-  rev: 8afb59c50a7d9f8197e8fc37d885f7896635735f  # frozen: v0.0.3
-  hooks:
-  - id: sync-pre-commit-deps
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
   rev: 4380fbb73a154b5f5624794c1c78d9719ccc860f  # frozen: v2.16.0
   hooks:
   - id: pretty-format-yaml
     args: [--autofix]
-- repo: https://github.com/JoC0de/pre-commit-prettier
-  rev: 7ffc7362fefc5a14935c84e35d76dcf62b519291  # frozen: v3.8.3
+- repo: https://github.com/biomejs/pre-commit
+  rev: v2.4.15
   hooks:
-  - id: prettier
-    types: [javascript]
-- repo: https://github.com/pre-commit/mirrors-eslint
-  rev: 9158d5162f915488785c296b5d08d6d18be10d32  # frozen: v10.3.0
-  hooks:
-  - id: eslint
-    args: [--fix]
-    additional_dependencies:
-    - eslint@10.0.3
-    - '@eslint/js@10.0.1'
-    - eslint-config-prettier@10.1.8
-    - globals@15.15.0
+  - id: biome-check

@@ -9,24 +9,19 @@
 // @grant        none
 // ==/UserScript==
 
-(function () {
-  "use strict";
+(() => {
   // Unofficial user script; not affiliated with or endorsed by Parcel or related entities.
 
   const HEADER_DAYS_TEXT = "Days Left";
   const MS_PER_DAY = 24 * 60 * 60 * 1000;
-  const DELETE_CONFIRM_MESSAGE =
-    "Delete this package? This action cannot be undone.";
+  const DELETE_CONFIRM_MESSAGE = "Delete this package? This action cannot be undone.";
 
   function normalize(text) {
     return (text || "").replace(/\s+/g, " ").trim().toLowerCase();
   }
 
   function getNoDataStatusText() {
-    return typeof globalThis.text_no_data === "string" &&
-      globalThis.text_no_data.trim()
-      ? globalThis.text_no_data
-      : "No data available";
+    return typeof globalThis.text_no_data === "string" && globalThis.text_no_data.trim() ? globalThis.text_no_data : "No data available";
   }
 
   function isNoDataStatusText(text) {
@@ -65,9 +60,7 @@
       };
       const month = monthNames[monthNameMatch[1].toLowerCase()];
       const day = Number(monthNameMatch[2]);
-      const year = monthNameMatch[3]
-        ? Number(monthNameMatch[3])
-        : new Date().getFullYear();
+      const year = monthNameMatch[3] ? Number(monthNameMatch[3]) : new Date().getFullYear();
       const date = new Date(year, month, day);
       if (!Number.isNaN(date.getTime())) {
         return date;
@@ -88,9 +81,7 @@
       }
     }
 
-    const slashed = cleaned.match(
-      /\b(\d{1,2})[/-](\d{1,2})(?:[/-](\d{2,4}))?\b/,
-    );
+    const slashed = cleaned.match(/\b(\d{1,2})[/-](\d{1,2})(?:[/-](\d{2,4}))?\b/);
     if (slashed) {
       const month = Number(slashed[1]);
       const day = Number(slashed[2]);
@@ -114,9 +105,7 @@
 
   function extractDeliveryDateFromText(text) {
     const value = text || "";
-    const labeledMatch = value.match(
-      /(?:scheduled|expected)\s+delivery\s*:\s*([^\n\r]+)/i,
-    );
+    const labeledMatch = value.match(/(?:scheduled|expected)\s+delivery\s*:\s*([^\n\r]+)/i);
     if (labeledMatch) {
       return parseDateValue(labeledMatch[1]);
     }
@@ -153,8 +142,7 @@
   }
 
   function getHeaderRow(table) {
-    const explicitHeader =
-      table.tHead?.rows?.[0] || table.querySelector("thead tr");
+    const explicitHeader = table.tHead?.rows?.[0] || table.querySelector("thead tr");
     if (explicitHeader && explicitHeader.cells.length >= 2) {
       return explicitHeader;
     }
@@ -164,9 +152,7 @@
       if (row.cells.length < 2) {
         continue;
       }
-      const texts = Array.from(row.cells).map((cell) =>
-        normalize(cell.textContent),
-      );
+      const texts = Array.from(row.cells).map((cell) => normalize(cell.textContent));
       if (texts.some((text) => looksLikeHeaderText(text))) {
         return row;
       }
@@ -188,9 +174,7 @@
       return false;
     }
 
-    const icon = row.querySelector(
-      'img[alt*="completed delivery" i], img[alt*="delivered" i]',
-    );
+    const icon = row.querySelector('img[alt*="completed delivery" i], img[alt*="delivered" i]');
     if (icon) {
       const src = icon.getAttribute("src") || "";
       const style = icon.getAttribute("style") || "";
@@ -204,16 +188,12 @@
   }
 
   function getDeliveryDate(row, deliveryIndex, statusIndex) {
-    const fromCell = parseDateValue(
-      row.cells[deliveryIndex]?.textContent || "",
-    );
+    const fromCell = parseDateValue(row.cells[deliveryIndex]?.textContent || "");
     if (fromCell) {
       return fromCell;
     }
 
-    const fromStatus = extractDeliveryDateFromText(
-      row.cells[statusIndex]?.textContent || "",
-    );
+    const fromStatus = extractDeliveryDateFromText(row.cells[statusIndex]?.textContent || "");
     if (fromStatus) {
       return fromStatus;
     }
@@ -227,19 +207,9 @@
 
   function calculateDaysUntil(date) {
     const now = new Date();
-    const todayStart = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate(),
-    );
-    const targetStart = new Date(
-      date.getFullYear(),
-      date.getMonth(),
-      date.getDate(),
-    );
-    const diff = Math.round(
-      (targetStart.getTime() - todayStart.getTime()) / MS_PER_DAY,
-    );
+    const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const targetStart = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const diff = Math.round((targetStart.getTime() - todayStart.getTime()) / MS_PER_DAY);
     return diff;
   }
 
@@ -264,57 +234,34 @@
   }
 
   function getExpectedDateRow(body) {
-    return (
-      Array.from(body.rows).find((row) =>
-        row.querySelector("td.expectedDate"),
-      ) || null
-    );
+    return Array.from(body.rows).find((row) => row.querySelector("td.expectedDate")) || null;
   }
 
   function getPrimaryShipmentRow(body) {
     return (
-      Array.from(body.rows).find(
-        (row) =>
-          row.classList.contains("tableRow") ||
-          row.classList.contains("tableRowDelivered"),
-      ) ||
-      Array.from(body.rows).find(
-        (row) => !row.querySelector("td.expectedDate"),
-      ) ||
+      Array.from(body.rows).find((row) => row.classList.contains("tableRow") || row.classList.contains("tableRowDelivered")) ||
+      Array.from(body.rows).find((row) => !row.querySelector("td.expectedDate")) ||
       null
     );
   }
 
-  function getDeliveryDateForBody(
-    body,
-    primaryRow,
-    deliveryIndex,
-    statusIndex,
-  ) {
+  function getDeliveryDateForBody(body, primaryRow, deliveryIndex, statusIndex) {
     const expectedRow = getExpectedDateRow(body);
     if (expectedRow) {
-      const fromExpected = extractDeliveryDateFromText(
-        expectedRow.textContent || "",
-      );
+      const fromExpected = extractDeliveryDateFromText(expectedRow.textContent || "");
       if (fromExpected) {
         return fromExpected;
       }
     }
-    return primaryRow
-      ? getDeliveryDate(primaryRow, deliveryIndex, statusIndex)
-      : null;
+    return primaryRow ? getDeliveryDate(primaryRow, deliveryIndex, statusIndex) : null;
   }
 
-  function ensureDaysColumn(table, headers, deliveryIndex, headerRow) {
+  function ensureDaysColumn(table, headers, headerRow) {
     const insertAt = 0;
     const headerTag = headers[0]?.tagName?.toLowerCase() === "td" ? "td" : "th";
-    let headerCell = headerRow.querySelector(
-      "th[data-tm-days-until], td[data-tm-days-until]",
-    );
+    let headerCell = headerRow.querySelector("th[data-tm-days-until], td[data-tm-days-until]");
     if (!headerCell) {
-      const fromText = Array.from(headerRow.cells).find(
-        (cell) => normalize(cell.textContent) === normalize(HEADER_DAYS_TEXT),
-      );
+      const fromText = Array.from(headerRow.cells).find((cell) => normalize(cell.textContent) === normalize(HEADER_DAYS_TEXT));
       if (fromText) {
         headerCell = fromText;
       }
@@ -335,7 +282,7 @@
 
     for (const body of table.tBodies) {
       const expectedRow = getExpectedDateRow(body);
-      if (expectedRow && expectedRow.cells[0]) {
+      if (expectedRow?.cells[0]) {
         while (expectedRow.cells.length > 1) {
           expectedRow.deleteCell(expectedRow.cells.length - 1);
         }
@@ -377,35 +324,16 @@
     return insertAt;
   }
 
-  function applyDaysValues(
-    table,
-    deliveryIndex,
-    daysIndex,
-    statusIndex,
-    headerRow,
-  ) {
+  function applyDaysValues(table, deliveryIndex, daysIndex, statusIndex, headerRow) {
     for (const body of table.tBodies) {
       const primaryRow = getPrimaryShipmentRow(body);
-      if (
-        !primaryRow ||
-        primaryRow === headerRow ||
-        !primaryRow.cells[daysIndex]
-      ) {
+      if (!primaryRow || primaryRow === headerRow || !primaryRow.cells[daysIndex]) {
         continue;
       }
-      const deliveryDate = getDeliveryDateForBody(
-        body,
-        primaryRow,
-        deliveryIndex,
-        statusIndex,
-      );
+      const deliveryDate = getDeliveryDateForBody(body, primaryRow, deliveryIndex, statusIndex);
       const delivered = isDeliveredRow(primaryRow, statusIndex);
       const statusText = primaryRow.cells[statusIndex]?.textContent || "";
-      primaryRow.cells[daysIndex].textContent = getDaysCellValue(
-        delivered,
-        deliveryDate,
-        statusText,
-      );
+      primaryRow.cells[daysIndex].textContent = getDaysCellValue(delivered, deliveryDate, statusText);
     }
   }
 
@@ -418,12 +346,7 @@
       const delivered = isDeliveredRow(primaryRow, statusIndex);
       const statusText = primaryRow.cells[statusIndex]?.textContent || "";
       const noData = isNoDataStatusText(statusText);
-      const date = getDeliveryDateForBody(
-        body,
-        primaryRow,
-        deliveryIndex,
-        statusIndex,
-      );
+      const date = getDeliveryDateForBody(body, primaryRow, deliveryIndex, statusIndex);
       const name = getNameValue(primaryRow, nameIndex);
       return {
         body,
@@ -473,21 +396,11 @@
       return;
     }
 
-    const deliveryIndex = findColumnIndex(headers, [
-      "delivery",
-      "eta",
-      "estimated",
-      "arrival",
-    ]);
+    const deliveryIndex = findColumnIndex(headers, ["delivery", "eta", "estimated", "arrival"]);
     const nameIndex = findColumnIndex(headers, ["name", "package", "shipment"]);
     const statusIndex = findColumnIndex(headers, ["status", "state"]);
 
-    const daysIndex = ensureDaysColumn(
-      table,
-      headers,
-      deliveryIndex,
-      headerRow,
-    );
+    const daysIndex = ensureDaysColumn(table, headers, headerRow);
     applyDaysValues(table, deliveryIndex, daysIndex, statusIndex, headerRow);
     sortRows(table, deliveryIndex, nameIndex, statusIndex, headerRow);
   }
@@ -500,9 +413,7 @@
       if (!headerRow) {
         return false;
       }
-      const headers = Array.from(headerRow.cells).map((cell) =>
-        normalize(cell.textContent),
-      );
+      const headers = Array.from(headerRow.cells).map((cell) => normalize(cell.textContent));
       if (!headers.length) {
         return false;
       }
@@ -521,9 +432,7 @@
     return (
       target instanceof Element &&
       Boolean(
-        target.closest(
-          '#table a[onclick*="deleteTracking("][title="Delete"], #table a[onclick*="deleteTracking("] img[alt="Delete"]',
-        ),
+        target.closest('#table a[onclick*="deleteTracking("][title="Delete"], #table a[onclick*="deleteTracking("] img[alt="Delete"]'),
       )
     );
   }
@@ -532,10 +441,7 @@
     document.addEventListener(
       "click",
       (event) => {
-        if (
-          shouldConfirmDelete(event.target) &&
-          !window.confirm(DELETE_CONFIRM_MESSAGE)
-        ) {
+        if (shouldConfirmDelete(event.target) && !window.confirm(DELETE_CONFIRM_MESSAGE)) {
           event.preventDefault();
           event.stopImmediatePropagation();
         }

@@ -10,8 +10,7 @@
 // @grant        none
 // ==/UserScript==
 
-(function () {
-  "use strict";
+(() => {
   // Unofficial user script; not affiliated with or endorsed by E*TRADE or related entities.
 
   const TARGET_TEXT = /use\s+security\s+code/i;
@@ -25,7 +24,7 @@
     const treeWalker = document.createTreeWalker(root, NodeFilter.SHOW_ELEMENT);
     while (treeWalker.nextNode()) {
       const node = treeWalker.currentNode;
-      if (node && node.shadowRoot) {
+      if (node?.shadowRoot) {
         roots.push(node.shadowRoot);
       }
     }
@@ -56,8 +55,7 @@
   function findByNearbyText(root) {
     const candidates = root.querySelectorAll('input[type="checkbox"]');
     for (const input of candidates) {
-      const containerText =
-        input.closest("label, div, li, td, span")?.textContent || "";
+      const containerText = input.closest("label, div, li, td, span")?.textContent || "";
       if (TARGET_TEXT.test(containerText)) {
         return input;
       }
@@ -112,7 +110,7 @@
       observer.disconnect();
       return;
     }
-    if (checkbox && checkbox.checked) {
+    if (checkbox?.checked) {
       done = true;
       observer.disconnect();
       return;

@@ -9,16 +9,14 @@
 // @grant        none
 // ==/UserScript==
 
-(function () {
-  "use strict";
+(() => {
   // Unofficial user script; not affiliated with or endorsed by LinkedIn or related entities.
 
   const MAIN_FEED_SELECTOR = '[data-testid="mainFeed"]';
   const FEED_ITEM_SELECTOR =
     '[componentkey*="FeedType_MAIN_FEED_RELEVANCE"], [role="listitem"][componentkey*="FeedType_MAIN_FEED_RELEVANCE"]';
   const FEED_PAGINATION_PATH = "/flagship-web/rsc-action/actions/pagination";
-  const FEED_PAGINATION_MARKER =
-    "sduiid=com.linkedin.sdui.pagers.feed.mainFeed";
+  const FEED_PAGINATION_MARKER = "sduiid=com.linkedin.sdui.pagers.feed.mainFeed";
   const FEED_REQUEST_BODY_MARKERS = [
     '"pagerId":"com.linkedin.sdui.pagers.feed.mainFeed"',
     '"screenId":"com.linkedin.sdui.flagshipnav.feed.MainFeed"',
@@ -37,45 +35,28 @@
     }
     if (body instanceof FormData) {
       return Array.from(body.entries())
-        .map(
-          ([key, value]) => `${key}=${typeof value === "string" ? value : ""}`,
-        )
+        .map(([key, value]) => `${key}=${typeof value === "string" ? value : ""}`)
         .join("&");
     }
-    if (
-      body instanceof ArrayBuffer ||
-      ArrayBuffer.isView(body) ||
-      body == null
-    ) {
+    if (body instanceof ArrayBuffer || ArrayBuffer.isView(body) || body == null) {
       return "";
     }
     return String(body);
   }
 
   function bodyLooksLikeFeedRequest(bodyText) {
-    return (
-      typeof bodyText === "string" &&
-      FEED_REQUEST_BODY_MARKERS.some((marker) => bodyText.includes(marker))
-    );
+    return typeof bodyText === "string" && FEED_REQUEST_BODY_MARKERS.some((marker) => bodyText.includes(marker));
   }
 
   function shouldBlockFeedRequest(url, bodyText) {
-    const urlMatches =
-      typeof url === "string" &&
-      url.includes(FEED_PAGINATION_PATH) &&
-      url.includes(FEED_PAGINATION_MARKER);
+    const urlMatches = typeof url === "string" && url.includes(FEED_PAGINATION_PATH) && url.includes(FEED_PAGINATION_MARKER);
     return urlMatches || bodyLooksLikeFeedRequest(bodyText);
   }
 
   function blockFeedPaginationRequests() {
     const originalFetch = window.fetch;
     window.fetch = async function fetch(input, init) {
-      const url =
-        typeof input === "string"
-          ? input
-          : input instanceof URL
-            ? input.href
-            : input?.url;
+      const url = typeof input === "string" ? input : input instanceof URL ? input.href : input?.url;
       const initBodyText = bodyToText(init?.body);
       const requestBodyText =
         !initBodyText && input instanceof Request && !input.bodyUsed
@@ -120,7 +101,9 @@
     document
       .querySelector(MAIN_FEED_SELECTOR)
       ?.querySelectorAll(FEED_ITEM_SELECTOR)
-      ?.forEach((element) => element.style.setProperty("display", "none"));
+      ?.forEach((element) => {
+        element.style.setProperty("display", "none");
+      });
   }
 
   function onLocationChange() {
