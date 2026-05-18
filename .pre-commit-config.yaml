@@ -13,18 +13,9 @@ repos:
   hooks:
   - id: pretty-format-yaml
     args: [--autofix]
-- repo: https://github.com/JoC0de/pre-commit-prettier
-  rev: 7ffc7362fefc5a14935c84e35d76dcf62b519291  # frozen: v3.8.3
+- repo: https://github.com/biomejs/pre-commit
+  rev: v2.4.15
   hooks:
-  - id: prettier
-    types: [javascript]
-- repo: https://github.com/pre-commit/mirrors-eslint
-  rev: 9158d5162f915488785c296b5d08d6d18be10d32  # frozen: v10.3.0
-  hooks:
-  - id: eslint
-    args: [--fix]
+  - id: biome-check
     additional_dependencies:
-    - eslint@10.0.3
-    - '@eslint/js@10.0.1'
-    - eslint-config-prettier@10.1.8
-    - globals@15.15.0
+    - '@biomejs/biome@2.4.15'
