@@ -13,11 +13,9 @@
     "globals": [
       "ArrayBuffer",
       "Blob",
-      "CSS",
       "Event",
       "FormData",
       "MutationObserver",
-      "NodeFilter",
       "Request",
       "URL",
       "URLSearchParams",
