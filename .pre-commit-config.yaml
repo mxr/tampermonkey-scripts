@@ -13,3 +13,11 @@ repos:
   rev: 5bb716344fd6979d991634e7ece88f407e599ee0  # frozen: v2.5.4
   hooks:
   - id: biome-check
+- repo: local
+  hooks:
+  - id: biome-migrate
+    name: biome migrate
+    entry: npx --yes @biomejs/biome migrate --write
+    language: system
+    files: ^\.pre-commit-config\.yaml$
+    pass_filenames: false
