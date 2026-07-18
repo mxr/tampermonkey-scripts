@@ -1,28 +1,24 @@
 repos:
 - repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
+  rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c   # frozen: v6.0.0
   hooks:
   - id: end-of-file-fixer
   - id: trailing-whitespace
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
-  rev: 4380fbb73a154b5f5624794c1c78d9719ccc860f  # frozen: v2.16.0
+  rev: 4380fbb73a154b5f5624794c1c78d9719ccc860f   # frozen: v2.16.0
   hooks:
   - id: pretty-format-yaml
     args: [--autofix]
 - repo: https://github.com/biomejs/pre-commit
-  rev: v2.5.4
+  rev: 5bb716344fd6979d991634e7ece88f407e599ee0    # frozen: v2.5.4
   hooks:
   - id: biome-check
-- repo: https://github.com/pre-commit/sync-pre-commit-deps
-  rev: 0860f48ea6ee50a41d103560604044a7396d92b2  # frozen: v0.0.4
-  hooks:
-  - id: sync-pre-commit-deps
 - repo: local
   hooks:
   - id: biome-migrate
     name: biome migrate
     entry: biome migrate --write
     language: node
-    additional_dependencies: ['@biomejs/biome@2.5.4']
+    additional_dependencies: ['@biomejs/biome@latest']
     files: ^\.pre-commit-config\.yaml$
     pass_filenames: false
