@@ -10,7 +10,7 @@ repos:
   - id: pretty-format-yaml
     args: [--autofix]
 - repo: https://github.com/biomejs/pre-commit
-  rev: 5bb716344fd6979d991634e7ece88f407e599ee0  # frozen: v2.5.4
+  rev: f6d5e1fa73430779cef768d00c512fa86162fe6e  # frozen: v2.5.5
   hooks:
   - id: biome-check
 - repo: https://github.com/pre-commit/sync-pre-commit-deps
