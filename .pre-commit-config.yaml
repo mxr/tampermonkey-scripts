@@ -1,18 +1,18 @@
 repos:
-- repo: https://github.com/pre-commit/pre-commit-hooks
-  rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
+- repo: https://github.com/biomejs/pre-commit
+  rev: f6d5e1fa73430779cef768d00c512fa86162fe6e  # frozen: v2.5.5
   hooks:
-  - id: end-of-file-fixer
-  - id: trailing-whitespace
+  - id: biome-check
 - repo: https://github.com/macisamuele/language-formatters-pre-commit-hooks
   rev: 4380fbb73a154b5f5624794c1c78d9719ccc860f  # frozen: v2.16.0
   hooks:
   - id: pretty-format-yaml
     args: [--autofix]
-- repo: https://github.com/biomejs/pre-commit
-  rev: f6d5e1fa73430779cef768d00c512fa86162fe6e  # frozen: v2.5.5
+- repo: https://github.com/pre-commit/pre-commit-hooks
+  rev: 3e8a8703264a2f4a69428a0aa4dcb512790b2c8c  # frozen: v6.0.0
   hooks:
-  - id: biome-check
+  - id: end-of-file-fixer
+  - id: trailing-whitespace
 - repo: https://github.com/pre-commit/sync-pre-commit-deps
   rev: 497f8ebf9d58162bb5898e3973a633d31d511169  # frozen: v0.0.5
   hooks:
