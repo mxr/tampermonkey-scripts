@@ -13,11 +13,6 @@ repos:
   hooks:
   - id: end-of-file-fixer
   - id: trailing-whitespace
-- repo: https://github.com/pre-commit/sync-pre-commit-deps
-  rev: 497f8ebf9d58162bb5898e3973a633d31d511169  # frozen: v0.0.5
-  hooks:
-  - id: sync-pre-commit-deps
-    args: [--yaml-mapping=2, --yaml-sequence=2, --yaml-offset=0]
 - repo: local
   hooks:
   - id: biome-schema-version
