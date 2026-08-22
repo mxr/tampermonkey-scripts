@@ -1,3 +1,5 @@
 stack:
 - frontend
-skipBiomeJson: true
+opts:
+  frontend:
+    skipBiomeJson: true
