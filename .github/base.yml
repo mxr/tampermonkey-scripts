@@ -1,7 +1,5 @@
 stack:
 - frontend
 opts:
-  biome:
-    skipBiomeJson: true
   frontend:
     nextJs: false
