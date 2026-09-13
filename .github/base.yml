@@ -1,5 +1,2 @@
 stack:
-- frontend
-opts:
-  frontend:
-    nextJs: false
+- javascript
