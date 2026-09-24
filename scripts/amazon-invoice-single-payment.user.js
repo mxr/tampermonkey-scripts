@@ -10,8 +10,6 @@
 // ==/UserScript==
 
 (() => {
-  "use strict";
-
   // Unofficial user script; not affiliated with or endorsed by Amazon.
 
   const GIFT_CARD_NAME = "Amazon Gift Card";
@@ -35,7 +33,7 @@
   }
 
   function findLineItemRow(labelText) {
-    const label = Array.from(      document.querySelectorAll(".od-line-item-row-label span")    ).find(
+    const label = Array.from(document.querySelectorAll(".od-line-item-row-label span")).find(
       (span) => span.textContent.trim().replace(/:$/, "") === labelText.replace(/:$/, ""),
     );
 
@@ -47,9 +45,9 @@
   }
 
   function removeGiftCardPaymentMethod() {
-    const giftCardName = Array.from(
-      document.querySelectorAll('[data-testid="payment-instrument-name"]'),
-    ).find((element) => element.textContent.trim() === GIFT_CARD_NAME);
+    const giftCardName = Array.from(document.querySelectorAll('[data-testid="payment-instrument-name"]')).find(
+      (element) => element.textContent.trim() === GIFT_CARD_NAME,
+    );
 
     const paymentMethod = giftCardName?.closest('[aria-label="payment method"]');
 
@@ -93,9 +91,7 @@
      *
      *   0.00 + (-14.14) = -14.14
      */
-    grandTotalValueSpan.textContent = formatAmount(
-      grandTotalValue + giftCardValue,
-    );
+    grandTotalValueSpan.textContent = formatAmount(grandTotalValue + giftCardValue);
 
     giftCardRow.remove();
   }
