@@ -2,7 +2,7 @@
 // @name         Amazon: Single Payment Method on Invoice
 // @namespace    https://github.com/mxr/tampermonkey-scripts
 // @version      1.0.3
-// @description  Hides an Amazon Gift Card payment entry and folds its applied amount into the invoice Grand Total.
+// @description  On the Amazon order invoice print page, consolidates a split payment into a single payment method and total.
 // @author       mxr
 // @match        https://www.amazon.com/gp/css/summary/print.html*
 // @run-at       document-idle
