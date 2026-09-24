@@ -35,12 +35,8 @@
   }
 
   function findLineItemRow(labelText) {
-    const normalizedLabel = labelText.replace(/:$/, "");
-
-    const label = Array.from(
-      document.querySelectorAll(".od-line-item-row-label span"),
-    ).find(
-      (span) => span.textContent.trim().replace(/:$/, "") === normalizedLabel,
+    const label = Array.from(      document.querySelectorAll(".od-line-item-row-label span")    ).find(
+      (span) => span.textContent.trim().replace(/:$/, "") === labelText.replace(/:$/, ""),
     );
 
     return label?.closest("li") ?? null;
