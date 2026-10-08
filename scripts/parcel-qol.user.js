@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Parcel: Quality of Life
 // @namespace    https://github.com/mxr/tampermonkey-scripts
-// @version      1.1.1
+// @version      1.1.2
 // @description  Adds days-left indicators, smart sorting, and delete confirmation prompts on Parcel.
 // @author       mxr
 // @match        https://web.parcelapp.net/*
@@ -15,6 +15,12 @@
   const HEADER_DAYS_TEXT = "Days Left";
   const MS_PER_DAY = 24 * 60 * 60 * 1000;
   const DELETE_CONFIRM_MESSAGE = "Delete this package? This action cannot be undone.";
+
+  function setText(element, text) {
+    if (element.textContent !== text) {
+      element.textContent = text;
+    }
+  }
 
   function normalize(text) {
     return (text || "").replace(/\s+/g, " ").trim().toLowerCase();
@@ -233,22 +239,18 @@
     return String(days);
   }
 
-  function getExpectedDateRow(body) {
-    return Array.from(body.rows).find((row) => row.querySelector("td.expectedDate")) || null;
-  }
-
   function getPrimaryShipmentRow(body) {
     return (
       Array.from(body.rows).find((row) => row.classList.contains("tableRow") || row.classList.contains("tableRowDelivered")) ||
-      Array.from(body.rows).find((row) => !row.querySelector("td.expectedDate")) ||
+      body.rows[0] ||
       null
     );
   }
 
   function getDeliveryDateForBody(body, primaryRow, deliveryIndex, statusIndex) {
-    const expectedRow = getExpectedDateRow(body);
-    if (expectedRow) {
-      const fromExpected = extractDeliveryDateFromText(expectedRow.textContent || "");
+    const expected = body.querySelector(".expectedDate");
+    if (expected) {
+      const fromExpected = extractDeliveryDateFromText(expected.textContent || "");
       if (fromExpected) {
         return fromExpected;
       }
@@ -270,38 +272,19 @@
       headerCell = document.createElement(headerTag);
       headerCell.dataset.tmDaysUntil = "true";
     }
-    headerCell.textContent = HEADER_DAYS_TEXT;
+    setText(headerCell, HEADER_DAYS_TEXT);
     headerCell.dataset.tmDaysUntil = "true";
     headerCell.style.whiteSpace = "nowrap";
     headerCell.style.width = "88px";
     headerCell.style.minWidth = "88px";
-    if (headerCell.parentElement === headerRow) {
-      headerRow.removeChild(headerCell);
+    if (headerRow.cells[insertAt] !== headerCell) {
+      headerRow.insertBefore(headerCell, headerRow.cells[insertAt] || null);
     }
-    headerRow.insertBefore(headerCell, headerRow.cells[insertAt] || null);
 
     for (const body of table.tBodies) {
-      const expectedRow = getExpectedDateRow(body);
-      if (expectedRow?.cells[0]) {
-        while (expectedRow.cells.length > 1) {
-          expectedRow.deleteCell(expectedRow.cells.length - 1);
-        }
-        expectedRow.cells[0].removeAttribute("colspan");
-      }
-
       const primaryRow = getPrimaryShipmentRow(body);
       if (!primaryRow || primaryRow === headerRow) {
         continue;
-      }
-
-      for (const row of body.rows) {
-        if (row === primaryRow) {
-          continue;
-        }
-        const staleDaysCell = row.querySelector("td[data-tm-days-until]");
-        if (staleDaysCell) {
-          staleDaysCell.remove();
-        }
       }
 
       let daysCell = primaryRow.querySelector("td[data-tm-days-until]");
@@ -310,15 +293,13 @@
         daysCell.dataset.tmDaysUntil = "true";
       }
       daysCell.className = "centeredDetailed centerDetailed";
-      daysCell.setAttribute("rowspan", expectedRow ? "2" : "1");
       daysCell.style.whiteSpace = "nowrap";
       daysCell.style.width = "88px";
       daysCell.style.minWidth = "88px";
 
-      if (daysCell.parentElement === primaryRow) {
-        primaryRow.removeChild(daysCell);
+      if (primaryRow.cells[insertAt] !== daysCell) {
+        primaryRow.insertBefore(daysCell, primaryRow.cells[insertAt] || null);
       }
-      primaryRow.insertBefore(daysCell, primaryRow.cells[insertAt] || null);
     }
 
     return insertAt;
@@ -333,7 +314,7 @@
       const deliveryDate = getDeliveryDateForBody(body, primaryRow, deliveryIndex, statusIndex);
       const delivered = isDeliveredRow(primaryRow, statusIndex);
       const statusText = primaryRow.cells[statusIndex]?.textContent || "";
-      primaryRow.cells[daysIndex].textContent = getDaysCellValue(delivered, deliveryDate, statusText);
+      setText(primaryRow.cells[daysIndex], getDaysCellValue(delivered, deliveryDate, statusText));
     }
   }
 
@@ -380,6 +361,12 @@
       return a.index - b.index;
     });
 
+    // Only move bodies when the order changes; reinserting rows on every run
+    // resets hover state and swallows clicks in Chrome.
+    const current = Array.from(table.tBodies);
+    if (scoredBodies.every((item, i) => current[i] === item.body)) {
+      return;
+    }
     for (const item of scoredBodies) {
       table.appendChild(item.body);
     }
@@ -396,11 +383,13 @@
       return;
     }
 
-    const deliveryIndex = findColumnIndex(headers, ["delivery", "eta", "estimated", "arrival"]);
-    const nameIndex = findColumnIndex(headers, ["name", "package", "shipment"]);
-    const statusIndex = findColumnIndex(headers, ["status", "state"]);
-
     const daysIndex = ensureDaysColumn(table, headers, headerRow);
+
+    // Look up columns after the days column is in place so indexes match row cells.
+    const columns = Array.from(headerRow.cells);
+    const deliveryIndex = findColumnIndex(columns, ["delivery", "eta", "estimated", "arrival"]);
+    const nameIndex = findColumnIndex(columns, ["name", "package", "shipment"]);
+    const statusIndex = findColumnIndex(columns, ["status", "state"]);
     applyDaysValues(table, deliveryIndex, daysIndex, statusIndex, headerRow);
     sortRows(table, deliveryIndex, nameIndex, statusIndex, headerRow);
   }
@@ -429,12 +418,7 @@
   let scheduled = false;
 
   function shouldConfirmDelete(target) {
-    return (
-      target instanceof Element &&
-      Boolean(
-        target.closest('#table a[onclick*="deleteTracking("][title="Delete"], #table a[onclick*="deleteTracking("] img[alt="Delete"]'),
-      )
-    );
+    return target instanceof Element && Boolean(target.closest('#table [data-action="delete"]'));
   }
 
   function installDeleteConfirmation() {
@@ -455,6 +439,8 @@
     for (const table of findTargetTables()) {
       enhanceTable(table);
     }
+    // Drop records caused by our own edits so they don't schedule another run.
+    observer.takeRecords();
   }
 
   function scheduleRun() {
