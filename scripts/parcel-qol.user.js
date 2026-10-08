@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Parcel: Quality of Life
 // @namespace    https://github.com/mxr/tampermonkey-scripts
-// @version      1.1.1
+// @version      1.1.2
 // @description  Adds days-left indicators, smart sorting, and delete confirmation prompts on Parcel.
 // @author       mxr
 // @match        https://web.parcelapp.net/*
