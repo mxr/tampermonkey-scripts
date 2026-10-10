@@ -16,7 +16,7 @@ or company whose website they interact with or modify.
 - `scripts/linkedin-hide-feed.user.js`: Hides the LinkedIn home news feed.
 - `scripts/parcel-qol.user.js`: Adds Parcel quality-of-life improvements including a days-left column, smart sorting,
   and delete confirmation.
-- `scripts/ynab-hide-image-column.user.js`: Hides the transaction image column in the YNAB register.
+- `scripts/ynab-hide-columns.user.js`: Hides the flag and transaction image columns in the YNAB register.
 
 ## Usage
 
