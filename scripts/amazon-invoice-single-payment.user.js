@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Amazon: Single Payment Method on Invoice
 // @namespace    https://github.com/mxr/tampermonkey-scripts
-// @version      1.0.1
+// @version      1.0.2
 // @description  On the Amazon order invoice print page, consolidates a split payment into a single payment method and total.
 // @author       mxr
 // @match        https://www.amazon.com/gp/css/summary/print.html*
@@ -45,9 +45,9 @@
   }
 
   function removeGiftCardPaymentMethod() {
-    const giftCardName = Array.from(document.querySelectorAll('[data-testid="payment-instrument-name"]')).find(
-      (element) => element.textContent.trim() === GIFT_CARD_NAME,
-    );
+    const giftCardName = Array.from(
+      document.querySelectorAll('[data-testid="payment-instrument-name"], [data-testid="payment-instrument-message"]'),
+    ).find((element) => element.textContent.trim() === GIFT_CARD_NAME);
 
     const paymentMethod = giftCardName?.closest('[aria-label="payment method"]');
 
@@ -82,16 +82,18 @@
     }
 
     /*
-     * Amazon renders the Gift Card Amount as a negative value:
+     * Amazon has rendered the Gift Card Amount both with and without a sign
+     * (e.g. "-$13.99" or "$13.99"), and the Grand Total already has it deducted:
      *
-     *   Grand Total:      0.00
-     *   Gift Card Amount: -14.14
+     *   Grand Total:      51.23
+     *   Gift Card Amount: -13.99
      *
-     * The combined total becomes:
-     *
-     *   0.00 + (-14.14) = -14.14
+     * Adding the gift card back gives the full charge: 51.23 + 13.99 = 65.22
      */
-    grandTotalValueSpan.textContent = formatAmount(grandTotalValue + giftCardValue);
+    grandTotalValueSpan.textContent = grandTotalValueSpan.textContent.replace(
+      /-?[\d,]+\.\d{2}/,
+      formatAmount(grandTotalValue + Math.abs(giftCardValue)),
+    );
 
     giftCardRow.remove();
   }
